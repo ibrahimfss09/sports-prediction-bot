@@ -1,23 +1,8 @@
 from flask import Flask, request, jsonify
 import os
 import requests
-import json
 
 app = Flask(__name__)
-
-def send_telegram_message(chat_id, text, reply_markup=None):
-    BOT_TOKEN = os.environ.get('BOT_TOKEN')
-    url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
-    payload = {
-        'chat_id': chat_id,
-        'text': text,
-        'parse_mode': 'Markdown'
-    }
-    if reply_markup:
-        payload['reply_markup'] = json.dumps(reply_markup)
-    
-    response = requests.post(url, json=payload)
-    return response.json()
 
 @app.route('/')
 def home():
@@ -27,50 +12,60 @@ def home():
 def webhook():
     try:
         data = request.get_json()
-        print("Received data:", data)
+        print("📨 Received:", data)
         
         if 'message' in data:
             chat_id = data['message']['chat']['id']
             text = data['message'].get('text', '')
             
+            BOT_TOKEN = os.environ.get('BOT_TOKEN')
+            
             if text == '/start':
+                # Simple text message first
+                url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
+                payload = {
+                    'chat_id': chat_id,
+                    'text': '🚀 *Welcome to Sports Prediction Bot!*\n\nPlease wait...',
+                    'parse_mode': 'Markdown'
+                }
+                response = requests.post(url, json=payload)
+                print("📤 Sent welcome:", response.json())
+                
+                # Then send language selection
                 keyboard = {
                     'inline_keyboard': [
                         [{'text': '🇺🇸 English', 'callback_data': 'lang_en'}],
-                        [{'text': '🇮🇳 Hindi', 'callback_data': 'lang_hi'}],
-                        [{'text': '🇧🇩 Bangla', 'callback_data': 'lang_bn'}],
-                        [{'text': '🇵🇰 Urdu', 'callback_data': 'lang_ur'}],
-                        [{'text': '🇳🇵 Nepali', 'callback_data': 'lang_ne'}]
+                        [{'text': '🇮🇳 Hindi', 'callback_data': 'lang_hi'}]
                     ]
                 }
                 
-                send_telegram_message(
-                    chat_id, 
-                    "🌍 *Select Your Preferred Language*\n\nPlease choose your language:", 
-                    keyboard
-                )
+                payload2 = {
+                    'chat_id': chat_id,
+                    'text': '🌍 *Select Your Language:*',
+                    'reply_markup': keyboard,
+                    'parse_mode': 'Markdown'
+                }
+                response2 = requests.post(url, json=payload2)
+                print("📤 Sent language:", response2.json())
         
         return jsonify({"status": "success"})
-    
+        
     except Exception as e:
-        print(f"Error: {e}")
+        print(f"❌ Error: {e}")
         return jsonify({"status": "error", "message": str(e)})
 
 @app.route('/set_webhook', methods=['GET'])
 def set_webhook():
-    try:
-        BOT_TOKEN = os.environ.get('BOT_TOKEN')
-        VERCEL_URL = os.environ.get('VERCEL_URL')
-        
-        webhook_url = f"https://api.telegram.org/bot{BOT_TOKEN}/setWebhook?url=https://{VERCEL_URL}/webhook"
-        response = requests.get(webhook_url)
-        
-        return jsonify({
-            "status": "success",
-            "webhook_set": response.json()
-        })
-    except Exception as e:
-        return jsonify({"error": str(e)})
+    BOT_TOKEN = os.environ.get('BOT_TOKEN')
+    VERCEL_URL = os.environ.get('VERCEL_URL')
+    
+    url = f"https://api.telegram.org/bot{BOT_TOKEN}/setWebhook?url=https://{VERCEL_URL}/webhook"
+    response = requests.get(url)
+    
+    return jsonify({
+        "status": "success", 
+        "result": response.json()
+    })
 
 if __name__ == '__main__':
     app.run()
