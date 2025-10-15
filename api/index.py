@@ -1,38 +1,36 @@
 from flask import Flask, request, jsonify
 import os
-import asyncio
-import threading
-import logging
-
-# Setup logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+import requests
 
 app = Flask(__name__)
 
-# Import and start bot
-def start_bot():
-    try:
-        from api.telegram_bot import start_polling
-        asyncio.run(start_polling())
-    except Exception as e:
-        logger.error(f"Bot startup failed: {e}")
-
-# Start bot in background thread
-@app.before_first_request
-def startup():
-    bot_thread = threading.Thread(target=start_bot)
-    bot_thread.daemon = True
-    bot_thread.start()
-    logger.info("Bot polling started in background")
-
 @app.route('/')
 def home():
-    return "Sports Prediction Bot is Running with Polling!"
+    return "✅ Sports Prediction Bot is Running!"
+
+@app.route('/webhook', methods=['POST'])
+def webhook():
+    return jsonify({"status": "success", "message": "Webhook received"})
 
 @app.route('/set_webhook', methods=['GET'])
 def set_webhook():
-    return jsonify({"status": "Using polling method - no webhook needed"})
+    try:
+        BOT_TOKEN = os.environ.get('BOT_TOKEN')
+        VERCEL_URL = os.environ.get('VERCEL_URL')
+        
+        if not BOT_TOKEN:
+            return jsonify({"error": "BOT_TOKEN not set"})
+        
+        webhook_url = f"https://api.telegram.org/bot{BOT_TOKEN}/setWebhook?url=https://{VERCEL_URL}/webhook"
+        response = requests.get(webhook_url)
+        
+        return jsonify({
+            "status": "success",
+            "webhook_set": response.json(),
+            "webhook_url": f"https://{VERCEL_URL}/webhook"
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)})
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()
