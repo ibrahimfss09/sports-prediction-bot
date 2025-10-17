@@ -472,4 +472,122 @@ def webhook():
                             [{'text': msg_data['check_deposit_btn'], 'callback_data': 'check_deposit'}]
                         ]
                     }
-                   
+                    message_text = msg_data['reg_success']
+                
+                send_telegram_message(chat_id, message_text, keyboard)
+        
+        elif 'callback_query' in data:
+            callback = data['callback_query']
+            chat_id = callback['message']['chat']['id']
+            message_id = callback['message']['message_id']
+            data_value = callback['data']
+            user_id = callback['from']['id']
+            
+            user = get_user(user_id)
+            if not user:
+                return jsonify({"status": "error"})
+            
+            msg_data = LANGUAGE_MESSAGES.get(user['language'], LANGUAGE_MESSAGES['en'])
+            
+            if data_value.startswith('lang_'):
+                # Language selection
+                lang_code = data_value.split('_')[1]
+                user['language'] = lang_code
+                save_user(user)
+                
+                msg_data = LANGUAGE_MESSAGES[lang_code]
+                
+                keyboard = {
+                    'inline_keyboard': [
+                        [{'text': msg_data['register_btn'], 'url': 'https://mostbet-king.com/5rTs'}],
+                        [{'text': msg_data['check_btn'], 'callback_data': 'check_registration'}]
+                    ]
+                }
+                
+                message_text = f"{msg_data['selected']}\n\n{msg_data['register_title']}\n\n{msg_data['account_new']}\n\n{msg_data['instruction1']}\n\n{msg_data['instruction2']}\n\n{msg_data['after_reg']}"
+                
+                edit_telegram_message(chat_id, message_id, message_text, keyboard)
+            
+            elif data_value == 'check_registration':
+                # Ask for Player ID
+                edit_telegram_message(chat_id, message_id, msg_data['enter_player_id'])
+            
+            elif data_value == 'check_deposit':
+                # Check deposit status
+                if user.get('deposit_amount', 0) >= 6:
+                    keyboard = {
+                        'inline_keyboard': [
+                            [{'text': msg_data['get_prediction_btn'], 'callback_data': 'get_prediction'}]
+                        ]
+                    }
+                    message_text = msg_data['deposit_success'].replace('{amount}', str(user['deposit_amount']))
+                else:
+                    keyboard = {
+                        'inline_keyboard': [
+                            [{'text': msg_data['deposit_btn'], 'url': 'https://mostbet-king.com/5rTs'}],
+                            [{'text': msg_data['check_deposit_btn'], 'callback_data': 'check_deposit'}]
+                        ]
+                    }
+                    message_text = msg_data['reg_success']
+                
+                edit_telegram_message(chat_id, message_id, message_text, keyboard)
+            
+            elif data_value == 'get_prediction':
+                # Check prediction limit
+                if user.get('prediction_count', 0) >= 5:
+                    # Prediction limit reached
+                    keyboard = {
+                        'inline_keyboard': [
+                            [{'text': msg_data['deposit_again_btn'], 'url': 'https://mostbet-king.com/5rTs'}],
+                            [{'text': msg_data['try_tomorrow_btn'], 'callback_data': 'try_tomorrow'}]
+                        ]
+                    }
+                    edit_telegram_message(chat_id, message_id, msg_data['prediction_limit'], keyboard)
+                else:
+                    # Get AI prediction
+                    prediction = ai_predictor.get_todays_prediction()
+                    update_prediction_count(user_id)
+                    
+                    keyboard = {
+                        'inline_keyboard': [
+                            [{'text': msg_data['get_prediction_btn'], 'callback_data': 'get_prediction'}]
+                        ]
+                    }
+                    
+                    message_text = f"""
+🎯 *AI CRICKET PREDICTION* 🤖
+
+🏟️ *Match:* {prediction['team_a']} vs {prediction['team_b']}
+📊 *Prediction:* {prediction['prediction']}
+✅ *Confidence:* {prediction['confidence']}%
+
+📈 *Analysis:*
+{prediction['analysis']}
+
+⚠️ *AI Prediction - Bet Responsibly*
+                    """
+                    
+                    edit_telegram_message(chat_id, message_id, message_text, keyboard)
+            
+            elif data_value == 'try_tomorrow':
+                # Inform about waiting
+                edit_telegram_message(chat_id, message_id, "⏳ Please try again after 12 hours for new predictions.")
+        
+        return jsonify({"status": "success"})
+    
+    except Exception as e:
+        print(f"Webhook error: {e}")
+        return jsonify({"status": "error", "message": str(e)})
+
+@app.route('/')
+def home():
+    return "✅ Sports Prediction Bot is Running!"
+
+@app.route('/set_webhook', methods=['GET'])
+def set_webhook():
+    url = f"https://api.telegram.org/bot{BOT_TOKEN}/setWebhook?url=https://{VERCEL_URL}/webhook"
+    response = requests.get(url)
+    return jsonify({"status": "success", "result": response.json()})
+
+if __name__ == '__main__':
+    app.run()
