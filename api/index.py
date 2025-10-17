@@ -6,17 +6,16 @@ from datetime import datetime, timedelta
 
 app = Flask(__name__)
 
-# Environment variables se hi sab kuch - SECURE
+# Environment variables
 BOT_TOKEN = os.environ.get('BOT_TOKEN')
-CRICAPI_KEY = os.environ.get('CRICAPI_KEY')  # Vercel me dalna hai
+CRICAPI_KEY = os.environ.get('CRICAPI_KEY')
 VERCEL_URL = os.environ.get('VERCEL_URL')
-ADMIN_CHAT_ID = os.environ.get('ADMIN_CHAT_ID')
 
 # In-memory storage
 users_storage = {}
 player_deposits = {}
 
-# ==================== COMPLETE 5 LANGUAGES MESSAGES ====================
+# ==================== ALL LANGUAGES MESSAGES ====================
 LANGUAGE_MESSAGES = {
     'en': {
         'welcome': "🌍 *Select Your Preferred Language:*",
@@ -26,25 +25,11 @@ LANGUAGE_MESSAGES = {
         'instruction1': "1️⃣ If after clicking the \"REGISTER\" button you get to the old account, you need to log out of it and click the button again.",
         'instruction2': "2️⃣ Specify a promocode during registration: **CLAIM**",
         'after_reg': "✅ After REGISTRATION, click the \"CHECK REGISTRATION\" button",
-        'register_btn': "📲 Register",
-        'check_btn': "🔍 Check Registration",
-        'enter_player_id': "🔍 *Check Your Registration*\n\nPlease enter your 1Win *Player ID* to verify:\n\n📝 *How to find Player ID:*\n1. Login to 1Win account\n2. Go to Profile Settings\n3. Copy Player ID number\n4. Paste it here\n\n🔢 *Enter your Player ID now:*",
-        'reg_success': "🎉 *Great, you have successfully completed registration!*\n\n✅ Your account is synchronized with the bot\n\n💴 *To gain access to signals, deposit your account (make a deposit) with at least 600₹ or $6 in any currency*\n\n🕹️ After successfully replenishing your account, click on the CHECK DEPOSIT button and gain access",
-        'deposit_btn': "💳 Deposit",
-        'check_deposit_btn': "🔍 Check Deposit",
+        'enter_player_id': "🔍 *Check Your Registration*\n\nPlease enter your 1Win *Player ID* to verify your registration.\n\n📝 *How to find Player ID:*\n1. Login to 1Win account\n2. Go to Profile Settings\n3. Copy Player ID number\n4. Paste it here\n\n🔢 *Enter your Player ID now:*",
+        'not_registered': "❌ *Sorry, You're Not Registered!*\n\nPlease click the REGISTER button first and complete your registration using our affiliate link.\n\nAfter successful registration, come back and enter your Player ID.",
+        'reg_success_no_deposit': "🎉 *Great, you have successfully completed registration!*\n\n✅ Your account is synchronized with the bot\n\n💴 *To gain access to signals, deposit your account (make a deposit) with at least 600₹ or $6 in any currency*\n\n🕹️ After successfully replenishing your account, click on the CHECK DEPOSIT button and gain access",
         'deposit_success': "🎊 *Deposit Verified Successfully!*\n\n💰 *Deposit Amount:* ${amount}\n✅ *Status:* Verified\n\n🎯 You now have access to AI-powered predictions!\n\nClick below to get your first prediction:",
-        'get_prediction_btn': "🎯 Get Prediction",
-        'prediction_limit': "🚫 *Prediction Limit Reached*\n\nYou've used all 5 free predictions for today.\n\n💡 *Options:*\n• Wait until tomorrow (12 hours)\n• Deposit 400₹ or $4 for immediate access\n\n💰 Continue predictions by depositing at least 400₹ or $4",
-        'deposit_again_btn': "💳 Deposit Again",
-        'try_tomorrow_btn': "🕐 Try Tomorrow",
-        'next_prediction_btn': "🔄 Next Prediction",
-        'prediction_text': "🎯 *AI CRICKET PREDICTION* 🤖\n\n🏟️ *Match:* {team_a} vs {team_b}\n📊 *Prediction:* {prediction}\n✅ *Confidence:* {confidence}%\n\n📈 *Analysis:*\n{analysis}\n\n⚠️ *AI Prediction - Bet Responsibly*",
-        'random_messages': [
-            "YOUR REGISTRATION IS SUCCESSFUL! ✅\n\nMake a deposit of $6,7,10,13,17 or any other amount and bot will automatically give you access to signals! 🔑\n\nYou can earn $10 ➡️ $100 every day💰\n\n👉Click /start",
-            "Bro, ready signal for you☺️\n\nSTART NOW👉 /start",
-            "🚀 The signal has already come\n\n🔥 Don't miss your chance to get your money\n\n➡️ /start",
-            "START BOT NOW AND GET MONEY💰🔥\n\n/start"
-        ]
+        'prediction_limit': "🚫 *Prediction Limit Reached*\n\nYou've used all 5 free predictions for today.\n\n💡 *Options:*\n• Wait until tomorrow (12 hours)\n• Deposit 400₹ or $4 for immediate access\n\n💰 Continue predictions by depositing at least 400₹ or $4"
     },
     'hi': {
         'welcome': "🌍 *अपनी पसंदीदा भाषा चुनें:*",
@@ -54,25 +39,11 @@ LANGUAGE_MESSAGES = {
         'instruction1': "1️⃣ यदि \"REGISTER\" बटन पर क्लिक करने के बाद आप पुराने खाते में आते हैं, तो आपको उससे लॉग आउट करना होगा और फिर से बटन पर क्लिक करना होगा।",
         'instruction2': "2️⃣ पंजीकरण के दौरान प्रोमोकोड निर्दिष्ट करें: **CLAIM**",
         'after_reg': "✅ पंजीकरण के बाद, \"CHECK REGISTRATION\" बटन पर क्लिक करें",
-        'register_btn': "📲 पंजीकरण",
-        'check_btn': "🔍 पंजीकरण जांचें",
         'enter_player_id': "🔍 *अपना पंजीकरण जांचें*\n\nकृपया सत्यापित करने के लिए अपना 1Win *Player ID* दर्ज करें:\n\n📝 *Player ID कैसे ढूंढें:*\n1. 1Win अकाउंट में लॉगिन करें\n2. प्रोफाइल सेटिंग्स पर जाएं\n3. Player ID नंबर कॉपी करें\n4. यहाँ पेस्ट करें\n\n🔢 *अब अपना Player ID दर्ज करें:*",
-        'reg_success': "🎉 *बधाई हो, आपने सफलतापूर्वक पंजीकरण पूरा कर लिया है!*\n\n✅ आपका खाता बॉट के साथ सिंक हो गया है\n\n💴 *सिग्नल तक पहुंच प्राप्त करने के लिए, अपने खाते में कम से कम 600₹ या $6 जमा करें*\n\n🕹️ अपना खाता सफलतापूर्वक रिचार्ज करने के बाद, CHECK DEPOSIT बटन पर क्लिक करें और पहुंच प्राप्त करें",
-        'deposit_btn': "💳 जमा करें",
-        'check_deposit_btn': "🔍 जमा जांचें",
+        'not_registered': "❌ *क्षमा करें, आप पंजीकृत नहीं हैं!*\n\nकृपया पहले REGISTER बटन पर क्लिक करें और हमारे एफिलिएट लिंक का उपयोग करके अपना पंजीकरण पूरा करें।\n\nसफल पंजीकरण के बाद, वापस आएं और अपना Player ID दर्ज करें।",
+        'reg_success_no_deposit': "🎉 *बधाई हो, आपने सफलतापूर्वक पंजीकरण पूरा कर लिया है!*\n\n✅ आपका खाता बॉट के साथ सिंक हो गया है\n\n💴 *सिग्नल तक पहुंच प्राप्त करने के लिए, अपने खाते में कम से कम 600₹ या $6 जमा करें*\n\n🕹️ अपना खाता सफलतापूर्वक रिचार्ज करने के बाद, CHECK DEPOSIT बटन पर क्लिक करें और पहुंच प्राप्त करें",
         'deposit_success': "🎊 *जमा सफलतापूर्वक सत्यापित!*\n\n💰 *जमा राशि:* ${amount}\n✅ *स्थिति:* सत्यापित\n\n🎯 अब आपके पास AI-पावर्ड भविष्यवाणियों तक पहुंच है!\n\nअपनी पहली भविष्यवाणी प्राप्त करने के लिए नीचे क्लिक करें:",
-        'get_prediction_btn': "🎯 भविष्यवाणी प्राप्त करें",
-        'prediction_limit': "🚫 *भविष्यवाणी सीमा पूर्ण*\n\nआपने आज की सभी 5 मुफ्त भविष्यवाणियों का उपयोग कर लिया है।\n\n💡 *विकल्प:*\n• कल तक प्रतीक्षा करें (12 घंटे)\n• तुरंत पहुंच के लिए 400₹ या $4 जमा करें\n\n💰 कम से कम 400₹ या $4 जमा करके भविष्यवाणियाँ जारी रखें",
-        'deposit_again_btn': "💳 फिर से जमा करें",
-        'try_tomorrow_btn': "🕐 कल प्रयास करें",
-        'next_prediction_btn': "🔄 अगली भविष्यवाणी",
-        'prediction_text': "🎯 *AI क्रिकेट भविष्यवाणी* 🤖\n\n🏟️ *मैच:* {team_a} vs {team_b}\n📊 *भविष्यवाणी:* {prediction}\n✅ *विश्वास:* {confidence}%\n\n📈 *विश्लेषण:*\n{analysis}\n\n⚠️ *AI भविष्यवाणी - जिम्मेदारी से जुआ खेलें*",
-        'random_messages': [
-            "आपका पंजीकरण सफल रहा है! ✅\n\n$6,7,10,13,17 या कोई अन्य राशि जमा करें और बॉट स्वचालित रूप से आपको सिग्नल तक पहुंच प्रदान करेगा! 🔑\n\nआप प्रतिदिन $10 ➡️ $100 कमा सकते हैं💰\n\n👉 /start क्लिक करें",
-            "भाई, आपके लिए सिग्नल तैयार है☺️\n\nअभी शुरू करें👉 /start",
-            "🚀 सिग्नल आ चुका है\n\n🔥 अपना पैसा पाने का मौका मत चूकें\n\n➡️ /start",
-            "अभी बॉट शुरू करें और पैसा प्राप्त करें💰🔥\n\n/start"
-        ]
+        'prediction_limit': "🚫 *भविष्यवाणी सीमा पूर्ण*\n\nआपने आज की सभी 5 मुफ्त भविष्यवाणियों का उपयोग कर लिया है।\n\n💡 *विकल्प:*\n• कल तक प्रतीक्षा करें (12 घंटे)\n• तुरंत पहुंच के लिए 400₹ या $4 जमा करें\n\n💰 कम से कम 400₹ या $4 जमा करके भविष्यवाणियाँ जारी रखें"
     },
     'bn': {
         'welcome': "🌍 *আপনার ভাষা নির্বাচন করুন:*",
@@ -82,25 +53,11 @@ LANGUAGE_MESSAGES = {
         'instruction1': "1️⃣ যদি \"REGISTER\" বাটনে ক্লিক করার পরে আপনি পুরানো অ্যাকাউন্টে আসেন, তাহলে আপনাকে এটি থেকে লগ আউট করতে হবে এবং আবার বাটনে ক্লিক করতে হবে।",
         'instruction2': "2️⃣ নিবন্ধনের সময় একটি প্রোমোকোড নির্দিষ্ট করুন: **CLAIM**",
         'after_reg': "✅ নিবন্ধনের পরে, \"CHECK REGISTRATION\" বাটনে ক্লিক করুন",
-        'register_btn': "📲 নিবন্ধন",
-        'check_btn': "🔍 নিবন্ধন পরীক্ষা",
         'enter_player_id': "🔍 *আপনার নিবন্ধন পরীক্ষা করুন*\n\nযাচাই করার জন্য আপনার 1Win *Player ID* লিখুন:\n\n📝 *Player ID কিভাবে খুঁজে পাবেন:*\n1. 1Win অ্যাকাউন্টে লগইন করুন\n2. প্রোফাইল সেটিংসে যান\n3. Player ID নম্বর কপি করুন\n4. এখানে পেস্ট করুন\n\n🔢 *এখন আপনার Player ID লিখুন:*",
-        'reg_success': "🎉 *অভিনন্দন, আপনি সফলভাবে নিবন্ধন সম্পন্ন করেছেন!*\n\n✅ আপনার অ্যাকাউন্ট বটের সাথে সিঙ্ক হয়েছে\n\n💴 *সিগন্যাল অ্যাক্সেস পেতে, আপনার অ্যাকাউন্টে কমপক্ষে 600₹ বা $6 জমা করুন*\n\n🕹️ আপনার অ্যাকাউন্ট সফলভাবে রিচার্জ করার পর, CHECK DEPOSIT বাটনে ক্লিক করুন এবং অ্যাক্সেস পান",
-        'deposit_btn': "💳 জমা করুন",
-        'check_deposit_btn': "🔍 জমা পরীক্ষা",
+        'not_registered': "❌ *দুঃখিত, আপনি নিবন্ধিত নন!*\n\nদয়া করে প্রথমে REGISTER বাটনে ক্লিক করুন এবং আমাদের অ্যাফিলিয়েট লিঙ্ক ব্যবহার করে আপনার নিবন্ধন সম্পূর্ণ করুন।\n\nসফল নিবন্ধনের পরে, ফিরে আসুন এবং আপনার Player ID লিখুন।",
+        'reg_success_no_deposit': "🎉 *অভিনন্দন, আপনি সফলভাবে নিবন্ধন সম্পন্ন করেছেন!*\n\n✅ আপনার অ্যাকাউন্ট বটের সাথে সিঙ্ক হয়েছে\n\n💴 *সিগন্যাল অ্যাক্সেস পেতে, আপনার অ্যাকাউন্টে কমপক্ষে 600₹ বা $6 জমা করুন*\n\n🕹️ আপনার অ্যাকাউন্ট সফলভাবে রিচার্জ করার পর, CHECK DEPOSIT বাটনে ক্লিক করুন এবং অ্যাক্সেস পান",
         'deposit_success': "🎊 *জমা সফলভাবে যাচাই করা হয়েছে!*\n\n💰 *জমার পরিমাণ:* ${amount}\n✅ *স্ট্যাটাস:* যাচাইকৃত\n\n🎯 এখন আপনার AI-চালিত ভবিষ্যদ্বাণী অ্যাক্সেস আছে!\n\nআপনার প্রথম ভবিষ্যদ্বাণী পেতে নীচে ক্লিক করুন:",
-        'get_prediction_btn': "🎯 ভবিষ্যদ্বাণী পান",
-        'prediction_limit': "🚫 *ভবিষ্যদ্বাণী সীমা reached*\n\nআপনি আজকের 5টি বিনামূল্যের ভবিষ্যদ্বাণী ব্যবহার করেছেন।\n\n💡 *বিকল্প:*\n• আগামীকাল পর্যন্ত অপেক্ষা করুন (12 ঘন্টা)\n• অবিলম্বে অ্যাক্সেসের জন্য 400₹ বা $4 জমা করুন\n\n💰 কমপক্ষে 400₹ বা $4 জমা করে ভবিষ্যদ্বাণী চালিয়ে যান",
-        'deposit_again_btn': "💳 আবার জমা করুন",
-        'try_tomorrow_btn': "🕐 আগামীকাল চেষ্টা করুন",
-        'next_prediction_btn': "🔄 পরবর্তী ভবিষ্যদ্বাণী",
-        'prediction_text': "🎯 *AI ক্রিকেট ভবিষ্যদ্বাণী* 🤖\n\n🏟️ *ম্যাচ:* {team_a} vs {team_b}\n📊 *ভবিষ্যদ্বাণী:* {prediction}\n✅ *আত্মবিশ্বাস:* {confidence}%\n\n📈 *বিশ্লেষণ:*\n{analysis}\n\n⚠️ *AI ভবিষ্যদ্বাণী - দায়িত্ব সহকারে বেট করুন*",
-        'random_messages': [
-            "আপনার নিবন্ধন সফল হয়েছে! ✅\n\n$6,7,10,13,17 বা অন্য কোনো পরিমাণ জমা করুন এবং বট স্বয়ংক্রিয়ভাবে আপনাকে সিগন্যাল অ্যাক্সেস দেবে! 🔑\n\nআপনি প্রতিদিন $10 ➡️ $100 উপার্জন করতে পারেন💰\n\n👉 /start ক্লিক করুন",
-            "ভাই, আপনার জন্য সিগন্যাল প্রস্তুত☺️\n\nএখনই শুরু করুন👉 /start",
-            "🚀 সিগন্যাল already এসেছে\n\n🔥 আপনার টাকা পাওয়ার সুযোগ মিস করবেন না\n\n➡️ /start",
-            "এখনই বট শুরু করুন এবং টাকা পান💰🔥\n\n/start"
-        ]
+        'prediction_limit': "🚫 *ভবিষ্যদ্বাণী সীমা reached*\n\nআপনি আজকের 5টি বিনামূল্যের ভবিষ্যদ্বাণী ব্যবহার করেছেন।\n\n💡 *বিকল্প:*\n• আগামীকাল পর্যন্ত অপেক্ষা করুন (12 ঘন্টা)\n• অবিলম্বে অ্যাক্সেসের জন্য 400₹ বা $4 জমা করুন\n\n💰 কমপক্ষে 400₹ বা $4 জমা করে ভবিষ্যদ্বাণী চালিয়ে যান"
     },
     'ur': {
         'welcome': "🌍 *اپنی زبان منتخب کریں:*",
@@ -110,25 +67,11 @@ LANGUAGE_MESSAGES = {
         'instruction1': "1️⃣ اگر \"REGISTER\" بٹن پر کلک کرنے کے بعد آپ پرانے اکاؤنٹ میں آتے ہیں، تو آپ کو اس سے لاگ آؤٹ ہونا پڑے گا اور دوبارہ بٹن پر کلک کرنا ہوگا۔",
         'instruction2': "2️⃣ رجسٹریشن کے دوران ایک پروموکوڈ specified کریں: **CLAIM**",
         'after_reg': "✅ رجسٹریشن کے بعد، \"CHECK REGISTRATION\" بٹن پر کلک کریں",
-        'register_btn': "📲 رجسٹریشن",
-        'check_btn': "🔍 رجسٹریشن چیک",
         'enter_player_id': "🔍 *اپنی رجسٹریشن چیک کریں*\n\nتصدیق کے لیے اپنا 1Win *Player ID* درج کریں:\n\n📝 *Player ID کیسے ڈھونڈیں:*\n1. 1Win اکاؤنٹ میں لاگ ان کریں\n2. پروفائل سیٹنگز پر جائیں\n3. Player ID نمبر کاپی کریں\n4. یہاں پیسٹ کریں\n\n🔢 *اب اپنا Player ID درج کریں:*",
-        'reg_success': "🎉 *مبارک ہو، آپ نے کامیابی کے ساتھ رجسٹریشن مکمل کر لی ہے!*\n\n✅ آپ کا اکاؤنٹ بوٹ کے ساتھ sync ہو گیا ہے\n\n💴 *سگنلز تک رسائی حاصل کرنے کے لیے، اپنے اکاؤنٹ میں کم از کم 600₹ یا $6 جمع کروائیں*\n\n🕹️ اپنا اکاؤنٹ کامیابی سے ریچارج کرنے کے بعد، CHECK DEPOSIT بٹن پر کلک کریں اور رسائی حاصل کریں",
-        'deposit_btn': "💳 جمع کروائیں",
-        'check_deposit_btn': "🔍 جمع چیک",
+        'not_registered': "❌ *معذرت، آپ رجسٹرڈ نہیں ہیں!*\n\nبراہ کرم پہلے REGISTER بٹن پر کلک کریں اور ہمارے affiliate link کا استعمال کرتے ہوئے اپنی رجسٹریشن مکمل کریں۔\n\nکامیاب رجسٹریشن کے بعد، واپس آئیں اور اپنا Player ID درج کریں۔",
+        'reg_success_no_deposit': "🎉 *مبارک ہو، آپ نے کامیابی کے ساتھ رجسٹریشن مکمل کر لی ہے!*\n\n✅ آپ کا اکاؤنٹ بوٹ کے ساتھ sync ہو گیا ہے\n\n💴 *سگنلز تک رسائی حاصل کرنے کے لیے، اپنے اکاؤنٹ میں کم از کم 600₹ یا $6 جمع کروائیں*\n\n🕹️ اپنا اکاؤنٹ کامیابی سے ریچارج کرنے کے بعد، CHECK DEPOSIT بٹن پر کلک کریں اور رسائی حاصل کریں",
         'deposit_success': "🎊 *جمع کامیابی سے تصدیق ہو گئی!*\n\n💰 *جمع کی رقم:* ${amount}\n✅ *حالت:* تصدیق شدہ\n\n🎯 اب آپ کے پاس AI-powered predictions تک رسائی ہے!\n\nاپنی پہلی prediction حاصل کرنے کے لیے نیچے کلک کریں:",
-        'get_prediction_btn': "🎯 prediction حاصل",
-        'prediction_limit': "🚫 *prediction حد reached*\n\nآپ نے آج کی 5 مفت predictions استعمال کر لی ہیں۔\n\n💡 *اختیارات:*\n• کل تک انتظار کریں (12 گھنٹے)\n• فوری رسائی کے لیے 400₹ یا $4 جمع کروائیں\n\n💰 کم از کم 400₹ یا $4 جمع کروا کر predictions جاری رکھیں",
-        'deposit_again_btn': "💳 دوبارہ جمع",
-        'try_tomorrow_btn': "🕐 کل کوشش",
-        'next_prediction_btn': "🔄 اگلی prediction",
-        'prediction_text': "🎯 *AI کرکٹ prediction* 🤖\n\n🏟️ *مقابلہ:* {team_a} vs {team_b}\n📊 *prediction:* {prediction}\n✅ *اعتماد:* {confidence}%\n\n📈 *تجزیہ:*\n{analysis}\n\n⚠️ *AI prediction - ذمہ داری سے جوا کھیلیں*",
-        'random_messages': [
-            "آپ کی رجسٹریشن کامیاب رہی ہے! ✅\n\n$6,7,10,13,17 یا کوئی دوسری رقم جمع کروائیں اور بوٹ خود کار طریقے سے آپ کو سگنلز تک رسائی دے گا! 🔑\n\nآپ روزانہ $10 ➡️ $100 کما سکتے ہیں💰\n\n👉 /start کلک",
-            "بھائی، آپ کے لیے سگنل تیار ہے☺️\n\nابھی شروع👉 /start",
-            "🚀 سگنل already آ چکا\n\n🔥 اپنے پیسے حاصل کرنے کا موقع ضائع نہ کریں\n\n➡️ /start",
-            "ابھی بوٹ شروع اور پیسے حاصل💰🔥\n\n/start"
-        ]
+        'prediction_limit': "🚫 *prediction حد reached*\n\nآپ نے آج کی 5 مفت predictions استعمال کر لی ہیں۔\n\n💡 *اختیارات:*\n• کل تک انتظار کریں (12 گھنٹے)\n• فوری رسائی کے لیے 400₹ یا $4 جمع کروائیں\n\n💰 کم از کم 400₹ یا $4 جمع کروا کر predictions جاری رکھیں"
     },
     'ne': {
         'welcome': "🌍 *आफ्नो भाषा चयन गर्नुहोस्:*",
@@ -138,115 +81,44 @@ LANGUAGE_MESSAGES = {
         'instruction1': "1️⃣ यदि \"REGISTER\" बटनमा क्लिक गरेपछि तपाईं पुरानो खातामा आउनुहुन्छ भने, तपाईंले यसबाट लग आउट गर्नुपर्छ र फेरि बटनमा क्लिक गर्नुपर्छ।",
         'instruction2': "2️⃣ दर्ता during प्रोमोकोड निर्दिष्ट गर्नुहोस्: **CLAIM**",
         'after_reg': "✅ दर्ता पछि, \"CHECK REGISTRATION\" बटनमा क्लिक गर्नुहोस्",
-        'register_btn': "📲 दर्ता",
-        'check_btn': "🔍 दर्ता जाँच",
         'enter_player_id': "🔍 *आफ्नो दर्ता जाँच गर्नुहोस्*\n\nसत्यापित गर्न आफ्नो 1Win *Player ID* प्रविष्ट गर्नुहोस्:\n\n📝 *Player ID कसरी फेला पार्ने:*\n1. 1Win खातामा लग इन गर्नुहोस्\n2. प्रोफाइल सेटिङहरूमा जानुहोस्\n3. Player ID नम्बर कपी गर्नुहोस्\n4. यहाँ पेस्ट गर्नुहोस्\n\n🔢 *अब आफ्नो Player ID प्रविष्ट गर्नुहोस्:*",
-        'reg_success': "🎉 *बधाई छ, तपाईंले सफलतापूर्वक दर्ता पूरा गर्नुभयो!*\n\n✅ तपाईंको खाता बोटसँग सिङ्क भयो\n\n💴 *सिग्नलहरूको पहुँच प्राप्त गर्न, आफ्नो खातामा कम्तिमा 600₹ वा $6 जम्मा गर्नुहोस्*\n\n🕹️ आफ्नो खाता सफलतापूर्वक रिचार्ज गरेपछि, CHECK DEPOSIT बटनमा क्लिक गर्नुहोस् र पहुँच प्राप्त गर्नुहोस्",
-        'deposit_btn': "💳 जम्मा गर्नुहोस्",
-        'check_deposit_btn': "🔍 जम्मा जाँच",
+        'not_registered': "❌ *माफ गर्नुहोस्, तपाईं दर्ता गरिएको छैन!*\n\nकृपया पहिले REGISTER बटनमा क्लिक गर्नुहोस् र हाम्रो एफिलिएट लिङ्क प्रयोग गरेर आफ्नो दर्ता पूरा गर्नुहोस्।\n\nसफल दर्ता पछि, फर्कनुहोस् र आफ्नो Player ID प्रविष्ट गर्नुहोस्।",
+        'reg_success_no_deposit': "🎉 *बधाई छ, तपाईंले सफलतापूर्वक दर्ता पूरा गर्नुभयो!*\n\n✅ तपाईंको खाता बोटसँग सिङ्क भयो\n\n💴 *सिग्नलहरूको पहुँच प्राप्त गर्न, आफ्नो खातामा कम्तिमा 600₹ वा $6 जम्मा गर्नुहोस्*\n\n🕹️ आफ्नो खाता सफलतापूर्वक रिचार्ज गरेपछि, CHECK DEPOSIT बटनमा क्लिक गर्नुहोस् र पहुँच प्राप्त गर्नुहोस्",
         'deposit_success': "🎊 *जम्मा सफलतापूर्वक सत्यापित!*\n\n💰 *जम्मा रकम:* ${amount}\n✅ *स्थिति:* सत्यापित\n\n🎯 अब तपाईंसँग AI-powered predictions को पहुँच छ!\n\nआफ्नो पहिलो prediction प्राप्त गर्न तल क्लिक गर्नुहोस्:",
-        'get_prediction_btn': "🎯 prediction प्राप्त",
-        'prediction_limit': "🚫 *prediction सीमा reached*\n\nतपाईंले आजका 5 नि: शुल्क predictions प्रयोग गर्नुभयो।\n\n💡 *विकल्पहरू:*\n• भोलि सम्म पर्खनुहोस् (12 घण्टा)\n• तत्काल पहुँचको लागि 400₹ वा $4 जम्मा गर्नुहोस्\n\n💰 कम्तिमा 400₹ वा $4 जम्मा गरेर predictions जारी राख्नुहोस्",
-        'deposit_again_btn': "💳 फेरि जम्मा",
-        'try_tomorrow_btn': "🕐 भोलि प्रयास",
-        'next_prediction_btn': "🔄 अर्को prediction",
-        'prediction_text': "🎯 *AI क्रिकेट prediction* 🤖\n\n🏟️ *खेल:* {team_a} vs {team_b}\n📊 *prediction:* {prediction}\n✅ *विश्वास:* {confidence}%\n\n📈 *विश्लेषण:*\n{analysis}\n\n⚠️ *AI prediction - जिम्मेवारी संग जुआ खेल्नुहोस्*",
-        'random_messages': [
-            "तपाईंको दर्ता सफल भयो! ✅\n\n$6,7,10,13,17 वा कुनै अन्य रकम जम्मा गर्नुहोस् र बोट स्वचालित रूपमा तपाईंलाई सिग्नलहरूको पहुँच दिनेछ! 🔑\n\nतपाईंले दैनिक $10 ➡️ $100 कमाउन सक्नुहुन्छ💰\n\n👉 /start क्लिक",
-            "दाई, तपाईंको लागि सिग्नल तयार छ☺️\n\nअहिले सुरु👉 /start",
-            "🚀 सिग्नल already आइसक्यो\n\n🔥 आफ्नो पैसा प्राप्त गर्ने मौका नगुमाउनुहोस्\n\n➡️ /start",
-            "अहिले बोट सुरु र पैसा प्राप्त💰🔥\n\n/start"
-        ]
+        'prediction_limit': "🚫 *prediction सीमा reached*\n\nतपाईंले आजका 5 नि: शुल्क predictions प्रयोग गर्नुभयो।\n\n💡 *विकल्पहरू:*\n• भोलि सम्म पर्खनुहोस् (12 घण्टा)\n• तत्काल पहुँचको लागि 400₹ वा $4 जम्मा गर्नुहोस्\n\n💰 कम्तिमा 400₹ वा $4 जम्मा गरेर predictions जारी राख्नुहोस्"
     }
 }
 
-# ==================== AI PREDICTION WITH CRICAPI ====================
+# ==================== AI PREDICTION ====================
 class CricketAIPredictor:
     def __init__(self):
         self.api_key = CRICAPI_KEY
         
-    def fetch_live_matches(self):
-        try:
-            if not self.api_key:
-                return self.get_fallback_matches()
-                
-            url = f"https://api.cricapi.com/v1/matches?apikey={self.api_key}&offset=0"
-            response = requests.get(url)
-            
-            if response.status_code == 200:
-                data = response.json()
-                if data.get('status') == 'success':
-                    matches = []
-                    for match in data.get('data', []):
-                        if match.get('matchStarted') and not match.get('matchEnded'):
-                            team_a = match['teamInfo'][0]['name'] if match.get('teamInfo') else 'Team A'
-                            team_b = match['teamInfo'][1]['name'] if match.get('teamInfo') and len(match['teamInfo']) > 1 else 'Team B'
-                            matches.append({
-                                'id': match['id'],
-                                'team_a': team_a,
-                                'team_b': team_b,
-                                'date': match.get('date', ''),
-                                'series': match.get('series', 'International'),
-                                'status': match.get('status', 'Live')
-                            })
-                    return matches[:3]
-            return self.get_fallback_matches()
-        except Exception as e:
-            print(f"API Error: {e}")
-            return self.get_fallback_matches()
-    
-    def get_fallback_matches(self):
-        today = datetime.now()
-        return [
-            {
-                'id': 'match1',
-                'team_a': 'India',
-                'team_b': 'Pakistan',
-                'date': today.strftime('%Y-%m-%d'),
-                'series': 'Asia Cup',
-                'status': 'Live'
-            }
+    def get_todays_prediction(self):
+        teams = [
+            ('India', 'Pakistan'),
+            ('Australia', 'England'),
+            ('New Zealand', 'South Africa'),
+            ('West Indies', 'Sri Lanka'),
+            ('Bangladesh', 'Afghanistan')
         ]
-    
-    def analyze_team_history(self, team1, team2):
-        # Advanced AI analysis
-        total_matches = random.randint(50, 150)
-        team1_wins = random.randint(20, total_matches - 20)
-        team2_wins = total_matches - team1_wins - random.randint(5, 15)
+        team_a, team_b = random.choice(teams)
         
-        team1_strength = (team1_wins / total_matches) * random.uniform(0.8, 1.2)
-        team2_strength = (team2_wins / total_matches) * random.uniform(0.8, 1.2)
-        
-        if team1_strength > team2_strength:
-            winner = team1
-            confidence = min(95, int(team1_strength * 100))
-        else:
-            winner = team2
-            confidence = min(95, int(team2_strength * 100))
-        
-        analysis_points = [
-            f"Historical data analyzed: {total_matches} matches between teams",
-            f"Current form and player performance considered",
-            f"Pitch conditions and weather factors included",
-            f"Team composition and strategy analyzed"
+        predictions = [f"{team_a} to win", f"{team_b} to win"]
+        analysis = [
+            f"Based on comprehensive AI analysis of team performance, {team_a} shows stronger chances in this encounter.",
+            f"Historical data and current form analysis favors {team_b} in this match.",
+            f"Team composition and player form analysis suggests {team_a} has better winning chances.",
+            f"Pitch conditions and weather factors give advantage to {team_b}."
         ]
         
         return {
-            'prediction': f"{winner} to win",
-            'confidence': confidence,
-            'analysis': "\n".join(analysis_points),
-            'team_a': team1,
-            'team_b': team2,
-            'user_analysis': f"Based on comprehensive AI analysis of team performance, {winner} shows stronger chances in this encounter with {confidence}% confidence."
+            'team_a': team_a,
+            'team_b': team_b,
+            'prediction': random.choice(predictions),
+            'confidence': random.randint(85, 95),
+            'analysis': random.choice(analysis)
         }
-    
-    def get_todays_prediction(self):
-        matches = self.fetch_live_matches()
-        if not matches:
-            return self.analyze_team_history("India", "Pakistan")
-        
-        match = matches[0]
-        return self.analyze_team_history(match['team_a'], match['team_b'])
 
 ai_predictor = CricketAIPredictor()
 
@@ -269,7 +141,6 @@ def can_get_prediction(user_id):
     today = datetime.now().strftime('%Y-%m-%d')
     
     if user['last_prediction_date'] != today:
-        # Reset for new day
         user['prediction_count'] = 0
         user['last_prediction_date'] = today
         save_user(user)
@@ -281,6 +152,15 @@ def update_prediction_count(user_id):
     user['prediction_count'] += 1
     user['last_prediction_date'] = datetime.now().strftime('%Y-%m-%d')
     save_user(user)
+
+# ==================== PLAYER VERIFICATION ====================
+def verify_player(player_id):
+    """Check if player is registered via postback"""
+    return player_id in player_deposits
+
+def get_player_deposit(player_id):
+    """Get player deposit amount"""
+    return player_deposits.get(player_id, 0)
 
 # ==================== TELEGRAM FUNCTIONS ====================
 def send_telegram_message(chat_id, text, reply_markup=None):
@@ -300,27 +180,6 @@ def send_telegram_message(chat_id, text, reply_markup=None):
     except Exception as e:
         print(f"Send message error: {e}")
         return None
-
-def delete_telegram_message(chat_id, message_id):
-    try:
-        BOT_TOKEN = os.environ.get('BOT_TOKEN')
-        url = f"https://api.telegram.org/bot{BOT_TOKEN}/deleteMessage"
-        payload = {
-            'chat_id': chat_id,
-            'message_id': message_id
-        }
-        response = requests.post(url, json=payload)
-        return response.json()
-    except Exception as e:
-        print(f"Delete message error: {e}")
-        return None
-
-def send_admin_notification(message):
-    try:
-        if ADMIN_CHAT_ID:
-            send_telegram_message(ADMIN_CHAT_ID, f"🔔 ADMIN: {message}")
-    except:
-        pass
 
 # ==================== 1WIN POSTBACK ====================
 @app.route('/1win-postback', methods=['GET'])
@@ -342,7 +201,6 @@ def handle_1win_postback():
                     user_data['deposit_amount'] = deposit_amount
                     users_storage[user_id] = user_data
             
-            send_admin_notification(f"💰 New deposit: Player {player_id} - ${deposit_amount}")
             return jsonify({"status": "success", "player_id": player_id})
         
         return jsonify({"status": "error", "message": "Invalid data"})
@@ -360,14 +218,10 @@ def webhook():
         if 'message' in data:
             message = data['message']
             chat_id = message['chat']['id']
-            message_id = message['message_id']
             text = message.get('text', '')
             user_id = message['from']['id']
             username = message['from'].get('username')
             first_name = message['from'].get('first_name', 'User')
-            
-            # Delete message immediately
-            delete_telegram_message(chat_id, message_id)
             
             user = get_user(user_id)
             if not user.get('username'):
@@ -394,41 +248,49 @@ def webhook():
             elif text.isdigit() and len(text) >= 5:
                 player_id = text
                 user['player_id'] = player_id
-                
-                # Check if player has deposited
-                deposit_amount = player_deposits.get(player_id, 0)
-                user['deposit_amount'] = deposit_amount
                 save_user(user)
                 
                 msg_data = LANGUAGE_MESSAGES.get(user['language'], LANGUAGE_MESSAGES['en'])
                 
-                if deposit_amount >= 6:
-                    keyboard = {
-                        'inline_keyboard': [
-                            [{'text': msg_data['get_prediction_btn'], 'callback_data': 'get_prediction'}]
-                        ]
-                    }
-                    message_text = msg_data['deposit_success'].replace('{amount}', str(deposit_amount))
+                # Verify player through postback
+                if verify_player(player_id):
+                    deposit_amount = get_player_deposit(player_id)
+                    user['deposit_amount'] = deposit_amount
+                    save_user(user)
+                    
+                    if deposit_amount >= 6:
+                        # Has deposited - show prediction button
+                        keyboard = {
+                            'inline_keyboard': [
+                                [{'text': '🎯 GET PREDICTION', 'callback_data': 'get_prediction'}]
+                            ]
+                        }
+                        message_text = msg_data['deposit_success'].replace('{amount}', str(deposit_amount))
+                    else:
+                        # Registered but no deposit
+                        keyboard = {
+                            'inline_keyboard': [
+                                [{'text': '💳 DEPOSIT', 'url': 'https://mostbet-king.com/5rTs'}],
+                                [{'text': '🔍 CHECK DEPOSIT', 'callback_data': 'check_deposit'}]
+                            ]
+                        }
+                        message_text = msg_data['reg_success_no_deposit']
                 else:
+                    # Not registered at all
                     keyboard = {
                         'inline_keyboard': [
-                            [{'text': msg_data['deposit_btn'], 'url': 'https://mostbet-king.com/5rTs'}],
-                            [{'text': msg_data['check_deposit_btn'], 'callback_data': 'check_deposit'}]
+                            [{'text': '📲 REGISTER', 'url': 'https://mostbet-king.com/5rTs'}]
                         ]
                     }
-                    message_text = msg_data['reg_success']
+                    message_text = msg_data['not_registered']
                 
                 send_telegram_message(chat_id, message_text, keyboard)
         
         elif 'callback_query' in data:
             callback = data['callback_query']
             chat_id = callback['message']['chat']['id']
-            message_id = callback['message']['message_id']
             data_value = callback['data']
             user_id = callback['from']['id']
-            
-            # Delete previous message
-            delete_telegram_message(chat_id, message_id)
             
             user = get_user(user_id)
             msg_data = LANGUAGE_MESSAGES.get(user['language'], LANGUAGE_MESSAGES['en'])
@@ -441,8 +303,8 @@ def webhook():
                 
                 keyboard = {
                     'inline_keyboard': [
-                        [{'text': msg_data['register_btn'], 'url': 'https://mostbet-king.com/5rTs'}],
-                        [{'text': msg_data['check_btn'], 'callback_data': 'check_registration'}]
+                        [{'text': '📲 REGISTER', 'url': 'https://mostbet-king.com/5rTs'}],
+                        [{'text': '🔍 CHECK REGISTRATION', 'callback_data': 'check_registration'}]
                     ]
                 }
                 
@@ -453,22 +315,31 @@ def webhook():
                 send_telegram_message(chat_id, msg_data['enter_player_id'])
             
             elif data_value == 'check_deposit':
-                deposit_amount = user.get('deposit_amount', 0)
-                if deposit_amount >= 6:
-                    keyboard = {
-                        'inline_keyboard': [
-                            [{'text': msg_data['get_prediction_btn'], 'callback_data': 'get_prediction'}]
-                        ]
-                    }
-                    message_text = msg_data['deposit_success'].replace('{amount}', str(deposit_amount))
+                player_id = user.get('player_id')
+                if player_id and verify_player(player_id):
+                    deposit_amount = get_player_deposit(player_id)
+                    if deposit_amount >= 6:
+                        keyboard = {
+                            'inline_keyboard': [
+                                [{'text': '🎯 GET PREDICTION', 'callback_data': 'get_prediction'}]
+                            ]
+                        }
+                        message_text = msg_data['deposit_success'].replace('{amount}', str(deposit_amount))
+                    else:
+                        keyboard = {
+                            'inline_keyboard': [
+                                [{'text': '💳 DEPOSIT', 'url': 'https://mostbet-king.com/5rTs'}],
+                                [{'text': '🔍 CHECK DEPOSIT', 'callback_data': 'check_deposit'}]
+                            ]
+                        }
+                        message_text = msg_data['reg_success_no_deposit']
                 else:
                     keyboard = {
                         'inline_keyboard': [
-                            [{'text': msg_data['deposit_btn'], 'url': 'https://mostbet-king.com/5rTs'}],
-                            [{'text': msg_data['check_deposit_btn'], 'callback_data': 'check_deposit'}]
+                            [{'text': '📲 REGISTER', 'url': 'https://mostbet-king.com/5rTs'}]
                         ]
                     }
-                    message_text = msg_data['reg_success']
+                    message_text = msg_data['not_registered']
                 
                 send_telegram_message(chat_id, message_text, keyboard)
             
@@ -476,8 +347,8 @@ def webhook():
                 if not can_get_prediction(user_id):
                     keyboard = {
                         'inline_keyboard': [
-                            [{'text': msg_data['deposit_again_btn'], 'url': 'https://mostbet-king.com/5rTs'}],
-                            [{'text': msg_data['try_tomorrow_btn'], 'callback_data': 'try_tomorrow'}]
+                            [{'text': '💳 DEPOSIT AGAIN', 'url': 'https://mostbet-king.com/5rTs'}],
+                            [{'text': '🕐 TRY TOMORROW', 'callback_data': 'try_tomorrow'}]
                         ]
                     }
                     send_telegram_message(chat_id, msg_data['prediction_limit'], keyboard)
@@ -487,17 +358,11 @@ def webhook():
                     
                     keyboard = {
                         'inline_keyboard': [
-                            [{'text': msg_data['next_prediction_btn'], 'callback_data': 'get_prediction'}]
+                            [{'text': '🔄 NEXT PREDICTION', 'callback_data': 'get_prediction'}]
                         ]
                     }
                     
-                    message_text = msg_data['prediction_text'].format(
-                        team_a=prediction['team_a'],
-                        team_b=prediction['team_b'],
-                        prediction=prediction['prediction'],
-                        confidence=prediction['confidence'],
-                        analysis=prediction['user_analysis']
-                    )
+                    message_text = f"🎯 *AI CRICKET PREDICTION* 🤖\n\n🏟️ *Match:* {prediction['team_a']} vs {prediction['team_b']}\n📊 *Prediction:* {prediction['prediction']}\n✅ *Confidence:* {prediction['confidence']}%\n\n📈 *Analysis:*\n{prediction['analysis']}\n\n⚠️ *AI Prediction - Bet Responsibly*"
                     
                     send_telegram_message(chat_id, message_text, keyboard)
             
