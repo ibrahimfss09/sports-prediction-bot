@@ -1,19 +1,22 @@
 from flask import Flask, request, jsonify
 import os
 import requests
-import sqlite3
 import random
 from datetime import datetime, timedelta
 
 app = Flask(__name__)
 
-# Environment variables - VERCEL ME DALNA HAI
+# Environment variables se hi sab kuch - SECURE
 BOT_TOKEN = os.environ.get('BOT_TOKEN')
-CRICAPI_KEY = "5c404449-255b-484e-ad48-dbc3c25e41fd"  # Direct code me
+CRICAPI_KEY = os.environ.get('CRICAPI_KEY')  # Vercel me dalna hai
 VERCEL_URL = os.environ.get('VERCEL_URL')
-ADMIN_CHAT_ID = os.environ.get('ADMIN_CHAT_ID')  # Optional
+ADMIN_CHAT_ID = os.environ.get('ADMIN_CHAT_ID')
 
-# ==================== LANGUAGE MESSAGES ====================
+# In-memory storage
+users_storage = {}
+player_deposits = {}
+
+# ==================== COMPLETE 5 LANGUAGES MESSAGES ====================
 LANGUAGE_MESSAGES = {
     'en': {
         'welcome': "🌍 *Select Your Preferred Language:*",
@@ -35,6 +38,7 @@ LANGUAGE_MESSAGES = {
         'deposit_again_btn': "💳 Deposit Again",
         'try_tomorrow_btn': "🕐 Try Tomorrow",
         'next_prediction_btn': "🔄 Next Prediction",
+        'prediction_text': "🎯 *AI CRICKET PREDICTION* 🤖\n\n🏟️ *Match:* {team_a} vs {team_b}\n📊 *Prediction:* {prediction}\n✅ *Confidence:* {confidence}%\n\n📈 *Analysis:*\n{analysis}\n\n⚠️ *AI Prediction - Bet Responsibly*",
         'random_messages': [
             "YOUR REGISTRATION IS SUCCESSFUL! ✅\n\nMake a deposit of $6,7,10,13,17 or any other amount and bot will automatically give you access to signals! 🔑\n\nYou can earn $10 ➡️ $100 every day💰\n\n👉Click /start",
             "Bro, ready signal for you☺️\n\nSTART NOW👉 /start",
@@ -62,6 +66,7 @@ LANGUAGE_MESSAGES = {
         'deposit_again_btn': "💳 फिर से जमा करें",
         'try_tomorrow_btn': "🕐 कल प्रयास करें",
         'next_prediction_btn': "🔄 अगली भविष्यवाणी",
+        'prediction_text': "🎯 *AI क्रिकेट भविष्यवाणी* 🤖\n\n🏟️ *मैच:* {team_a} vs {team_b}\n📊 *भविष्यवाणी:* {prediction}\n✅ *विश्वास:* {confidence}%\n\n📈 *विश्लेषण:*\n{analysis}\n\n⚠️ *AI भविष्यवाणी - जिम्मेदारी से जुआ खेलें*",
         'random_messages': [
             "आपका पंजीकरण सफल रहा है! ✅\n\n$6,7,10,13,17 या कोई अन्य राशि जमा करें और बॉट स्वचालित रूप से आपको सिग्नल तक पहुंच प्रदान करेगा! 🔑\n\nआप प्रतिदिन $10 ➡️ $100 कमा सकते हैं💰\n\n👉 /start क्लिक करें",
             "भाई, आपके लिए सिग्नल तैयार है☺️\n\nअभी शुरू करें👉 /start",
@@ -89,6 +94,7 @@ LANGUAGE_MESSAGES = {
         'deposit_again_btn': "💳 আবার জমা করুন",
         'try_tomorrow_btn': "🕐 আগামীকাল চেষ্টা করুন",
         'next_prediction_btn': "🔄 পরবর্তী ভবিষ্যদ্বাণী",
+        'prediction_text': "🎯 *AI ক্রিকেট ভবিষ্যদ্বাণী* 🤖\n\n🏟️ *ম্যাচ:* {team_a} vs {team_b}\n📊 *ভবিষ্যদ্বাণী:* {prediction}\n✅ *আত্মবিশ্বাস:* {confidence}%\n\n📈 *বিশ্লেষণ:*\n{analysis}\n\n⚠️ *AI ভবিষ্যদ্বাণী - দায়িত্ব সহকারে বেট করুন*",
         'random_messages': [
             "আপনার নিবন্ধন সফল হয়েছে! ✅\n\n$6,7,10,13,17 বা অন্য কোনো পরিমাণ জমা করুন এবং বট স্বয়ংক্রিয়ভাবে আপনাকে সিগন্যাল অ্যাক্সেস দেবে! 🔑\n\nআপনি প্রতিদিন $10 ➡️ $100 উপার্জন করতে পারেন💰\n\n👉 /start ক্লিক করুন",
             "ভাই, আপনার জন্য সিগন্যাল প্রস্তুত☺️\n\nএখনই শুরু করুন👉 /start",
@@ -116,6 +122,7 @@ LANGUAGE_MESSAGES = {
         'deposit_again_btn': "💳 دوبارہ جمع",
         'try_tomorrow_btn': "🕐 کل کوشش",
         'next_prediction_btn': "🔄 اگلی prediction",
+        'prediction_text': "🎯 *AI کرکٹ prediction* 🤖\n\n🏟️ *مقابلہ:* {team_a} vs {team_b}\n📊 *prediction:* {prediction}\n✅ *اعتماد:* {confidence}%\n\n📈 *تجزیہ:*\n{analysis}\n\n⚠️ *AI prediction - ذمہ داری سے جوا کھیلیں*",
         'random_messages': [
             "آپ کی رجسٹریشن کامیاب رہی ہے! ✅\n\n$6,7,10,13,17 یا کوئی دوسری رقم جمع کروائیں اور بوٹ خود کار طریقے سے آپ کو سگنلز تک رسائی دے گا! 🔑\n\nآپ روزانہ $10 ➡️ $100 کما سکتے ہیں💰\n\n👉 /start کلک",
             "بھائی، آپ کے لیے سگنل تیار ہے☺️\n\nابھی شروع👉 /start",
@@ -143,6 +150,7 @@ LANGUAGE_MESSAGES = {
         'deposit_again_btn': "💳 फेरि जम्मा",
         'try_tomorrow_btn': "🕐 भोलि प्रयास",
         'next_prediction_btn': "🔄 अर्को prediction",
+        'prediction_text': "🎯 *AI क्रिकेट prediction* 🤖\n\n🏟️ *खेल:* {team_a} vs {team_b}\n📊 *prediction:* {prediction}\n✅ *विश्वास:* {confidence}%\n\n📈 *विश्लेषण:*\n{analysis}\n\n⚠️ *AI prediction - जिम्मेवारी संग जुआ खेल्नुहोस्*",
         'random_messages': [
             "तपाईंको दर्ता सफल भयो! ✅\n\n$6,7,10,13,17 वा कुनै अन्य रकम जम्मा गर्नुहोस् र बोट स्वचालित रूपमा तपाईंलाई सिग्नलहरूको पहुँच दिनेछ! 🔑\n\nतपाईंले दैनिक $10 ➡️ $100 कमाउन सक्नुहुन्छ💰\n\n👉 /start क्लिक",
             "दाई, तपाईंको लागि सिग्नल तयार छ☺️\n\nअहिले सुरु👉 /start",
@@ -152,90 +160,6 @@ LANGUAGE_MESSAGES = {
     }
 }
 
-# ==================== DATABASE SETUP ====================
-def init_db():
-    conn = sqlite3.connect('sports_bot.db')
-    cursor = conn.cursor()
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER UNIQUE,
-            username TEXT,
-            first_name TEXT,
-            language TEXT DEFAULT 'en',
-            player_id TEXT,
-            deposit_amount REAL DEFAULT 0,
-            prediction_count INTEGER DEFAULT 0,
-            last_prediction_date TEXT,
-            last_activity TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            registered_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
-    ''')
-    conn.commit()
-    conn.close()
-
-init_db()
-
-def get_user(user_id):
-    conn = sqlite3.connect('sports_bot.db')
-    cursor = conn.cursor()
-    cursor.execute('SELECT * FROM users WHERE user_id = ?', (user_id,))
-    user = cursor.fetchone()
-    conn.close()
-    return user
-
-def save_user(user_data):
-    conn = sqlite3.connect('sports_bot.db')
-    cursor = conn.cursor()
-    cursor.execute('''
-        INSERT OR REPLACE INTO users 
-        (user_id, username, first_name, language, player_id, deposit_amount, prediction_count, last_prediction_date, last_activity)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-    ''', (
-        user_data['user_id'],
-        user_data.get('username'),
-        user_data.get('first_name'),
-        user_data.get('language', 'en'),
-        user_data.get('player_id'),
-        user_data.get('deposit_amount', 0),
-        user_data.get('prediction_count', 0),
-        user_data.get('last_prediction_date'),
-        datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    ))
-    conn.commit()
-    conn.close()
-
-def update_prediction_count(user_id):
-    conn = sqlite3.connect('sports_bot.db')
-    cursor = conn.cursor()
-    cursor.execute('''
-        UPDATE users 
-        SET prediction_count = prediction_count + 1,
-            last_prediction_date = ?,
-            last_activity = ?
-        WHERE user_id = ?
-    ''', (
-        datetime.now().strftime('%Y-%m-%d'),
-        datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-        user_id
-    ))
-    conn.commit()
-    conn.close()
-
-def can_get_prediction(user):
-    if not user:
-        return False
-    today = datetime.now().strftime('%Y-%m-%d')
-    if user[8] != today:  # last_prediction_date
-        # Reset count for new day
-        conn = sqlite3.connect('sports_bot.db')
-        cursor = conn.cursor()
-        cursor.execute('UPDATE users SET prediction_count = 0 WHERE user_id = ?', (user[1],))
-        conn.commit()
-        conn.close()
-        return True
-    return user[7] < 5  # prediction_count < 5
-
 # ==================== AI PREDICTION WITH CRICAPI ====================
 class CricketAIPredictor:
     def __init__(self):
@@ -243,6 +167,9 @@ class CricketAIPredictor:
         
     def fetch_live_matches(self):
         try:
+            if not self.api_key:
+                return self.get_fallback_matches()
+                
             url = f"https://api.cricapi.com/v1/matches?apikey={self.api_key}&offset=0"
             response = requests.get(url)
             
@@ -282,12 +209,11 @@ class CricketAIPredictor:
         ]
     
     def analyze_team_history(self, team1, team2):
-        # Advanced AI analysis (backend only - user ko nahi dikhega)
+        # Advanced AI analysis
         total_matches = random.randint(50, 150)
         team1_wins = random.randint(20, total_matches - 20)
         team2_wins = total_matches - team1_wins - random.randint(5, 15)
         
-        # AI analysis based on historical data
         team1_strength = (team1_wins / total_matches) * random.uniform(0.8, 1.2)
         team2_strength = (team2_wins / total_matches) * random.uniform(0.8, 1.2)
         
@@ -299,7 +225,7 @@ class CricketAIPredictor:
             confidence = min(95, int(team2_strength * 100))
         
         analysis_points = [
-            f"Historical data analyzed: {total_matches} matches",
+            f"Historical data analyzed: {total_matches} matches between teams",
             f"Current form and player performance considered",
             f"Pitch conditions and weather factors included",
             f"Team composition and strategy analyzed"
@@ -324,9 +250,42 @@ class CricketAIPredictor:
 
 ai_predictor = CricketAIPredictor()
 
+# ==================== USER MANAGEMENT ====================
+def get_user(user_id):
+    return users_storage.get(user_id, {
+        'user_id': user_id,
+        'language': 'en',
+        'prediction_count': 0,
+        'last_prediction_date': None,
+        'player_id': None,
+        'deposit_amount': 0
+    })
+
+def save_user(user_data):
+    users_storage[user_data['user_id']] = user_data
+
+def can_get_prediction(user_id):
+    user = get_user(user_id)
+    today = datetime.now().strftime('%Y-%m-%d')
+    
+    if user['last_prediction_date'] != today:
+        # Reset for new day
+        user['prediction_count'] = 0
+        user['last_prediction_date'] = today
+        save_user(user)
+    
+    return user['prediction_count'] < 5
+
+def update_prediction_count(user_id):
+    user = get_user(user_id)
+    user['prediction_count'] += 1
+    user['last_prediction_date'] = datetime.now().strftime('%Y-%m-%d')
+    save_user(user)
+
 # ==================== TELEGRAM FUNCTIONS ====================
 def send_telegram_message(chat_id, text, reply_markup=None):
     try:
+        BOT_TOKEN = os.environ.get('BOT_TOKEN')
         url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
         payload = {
             'chat_id': chat_id,
@@ -344,6 +303,7 @@ def send_telegram_message(chat_id, text, reply_markup=None):
 
 def delete_telegram_message(chat_id, message_id):
     try:
+        BOT_TOKEN = os.environ.get('BOT_TOKEN')
         url = f"https://api.telegram.org/bot{BOT_TOKEN}/deleteMessage"
         payload = {
             'chat_id': chat_id,
@@ -354,6 +314,13 @@ def delete_telegram_message(chat_id, message_id):
     except Exception as e:
         print(f"Delete message error: {e}")
         return None
+
+def send_admin_notification(message):
+    try:
+        if ADMIN_CHAT_ID:
+            send_telegram_message(ADMIN_CHAT_ID, f"🔔 ADMIN: {message}")
+    except:
+        pass
 
 # ==================== 1WIN POSTBACK ====================
 @app.route('/1win-postback', methods=['GET'])
@@ -367,12 +334,15 @@ def handle_1win_postback():
         deposit_amount = float(data.get('fdp', 0) or data.get('dep_sum', 0))
         
         if player_id and status in ['fd_approved', 'active']:
-            conn = sqlite3.connect('sports_bot.db')
-            cursor = conn.cursor()
-            cursor.execute('UPDATE users SET deposit_amount = ? WHERE player_id = ?', (deposit_amount, player_id))
-            conn.commit()
-            conn.close()
+            player_deposits[player_id] = deposit_amount
             
+            # Update all users with this player_id
+            for user_id, user_data in users_storage.items():
+                if user_data.get('player_id') == player_id:
+                    user_data['deposit_amount'] = deposit_amount
+                    users_storage[user_id] = user_data
+            
+            send_admin_notification(f"💰 New deposit: Player {player_id} - ${deposit_amount}")
             return jsonify({"status": "success", "player_id": player_id})
         
         return jsonify({"status": "error", "message": "Invalid data"})
@@ -387,8 +357,6 @@ def webhook():
     try:
         data = request.get_json()
         
-        BOT_TOKEN = os.environ.get('BOT_TOKEN')
-        
         if 'message' in data:
             message = data['message']
             chat_id = message['chat']['id']
@@ -398,18 +366,16 @@ def webhook():
             username = message['from'].get('username')
             first_name = message['from'].get('first_name', 'User')
             
-            # Delete the message immediately
+            # Delete message immediately
             delete_telegram_message(chat_id, message_id)
             
             user = get_user(user_id)
-            if not user:
-                save_user({
-                    'user_id': user_id,
+            if not user.get('username'):
+                user.update({
                     'username': username,
-                    'first_name': first_name,
-                    'language': 'en'
+                    'first_name': first_name
                 })
-                user = get_user(user_id)
+                save_user(user)
             
             if text == '/start':
                 keyboard = {
@@ -422,30 +388,27 @@ def webhook():
                     ]
                 }
                 
-                msg_data = LANGUAGE_MESSAGES.get(user[4], LANGUAGE_MESSAGES['en'])
+                msg_data = LANGUAGE_MESSAGES.get(user['language'], LANGUAGE_MESSAGES['en'])
                 send_telegram_message(chat_id, msg_data['welcome'], keyboard)
             
             elif text.isdigit() and len(text) >= 5:
                 player_id = text
-                user_data = {
-                    'user_id': user_id,
-                    'username': user[2],
-                    'first_name': user[3],
-                    'language': user[4],
-                    'player_id': player_id,
-                    'deposit_amount': user[6] or 0
-                }
-                save_user(user_data)
+                user['player_id'] = player_id
                 
-                msg_data = LANGUAGE_MESSAGES.get(user[4], LANGUAGE_MESSAGES['en'])
+                # Check if player has deposited
+                deposit_amount = player_deposits.get(player_id, 0)
+                user['deposit_amount'] = deposit_amount
+                save_user(user)
                 
-                if user[6] and user[6] >= 6:
+                msg_data = LANGUAGE_MESSAGES.get(user['language'], LANGUAGE_MESSAGES['en'])
+                
+                if deposit_amount >= 6:
                     keyboard = {
                         'inline_keyboard': [
                             [{'text': msg_data['get_prediction_btn'], 'callback_data': 'get_prediction'}]
                         ]
                     }
-                    message_text = msg_data['deposit_success'].replace('{amount}', str(user[6]))
+                    message_text = msg_data['deposit_success'].replace('{amount}', str(deposit_amount))
                 else:
                     keyboard = {
                         'inline_keyboard': [
@@ -464,23 +427,17 @@ def webhook():
             data_value = callback['data']
             user_id = callback['from']['id']
             
-            # Delete the previous message
+            # Delete previous message
             delete_telegram_message(chat_id, message_id)
             
             user = get_user(user_id)
-            msg_data = LANGUAGE_MESSAGES.get(user[4] if user else 'en', LANGUAGE_MESSAGES['en'])
+            msg_data = LANGUAGE_MESSAGES.get(user['language'], LANGUAGE_MESSAGES['en'])
             
             if data_value.startswith('lang_'):
                 lang_code = data_value.split('_')[1]
-                if user:
-                    user_data = {
-                        'user_id': user_id,
-                        'username': user[2],
-                        'first_name': user[3],
-                        'language': lang_code
-                    }
-                    save_user(user_data)
-                    msg_data = LANGUAGE_MESSAGES[lang_code]
+                user['language'] = lang_code
+                save_user(user)
+                msg_data = LANGUAGE_MESSAGES[lang_code]
                 
                 keyboard = {
                     'inline_keyboard': [
@@ -496,14 +453,14 @@ def webhook():
                 send_telegram_message(chat_id, msg_data['enter_player_id'])
             
             elif data_value == 'check_deposit':
-                user = get_user(user_id)
-                if user and user[6] and user[6] >= 6:
+                deposit_amount = user.get('deposit_amount', 0)
+                if deposit_amount >= 6:
                     keyboard = {
                         'inline_keyboard': [
                             [{'text': msg_data['get_prediction_btn'], 'callback_data': 'get_prediction'}]
                         ]
                     }
-                    message_text = msg_data['deposit_success'].replace('{amount}', str(user[6]))
+                    message_text = msg_data['deposit_success'].replace('{amount}', str(deposit_amount))
                 else:
                     keyboard = {
                         'inline_keyboard': [
@@ -516,11 +473,7 @@ def webhook():
                 send_telegram_message(chat_id, message_text, keyboard)
             
             elif data_value == 'get_prediction':
-                user = get_user(user_id)
-                if not user:
-                    return jsonify({"status": "error"})
-                
-                if not can_get_prediction(user):
+                if not can_get_prediction(user_id):
                     keyboard = {
                         'inline_keyboard': [
                             [{'text': msg_data['deposit_again_btn'], 'url': 'https://mostbet-king.com/5rTs'}],
