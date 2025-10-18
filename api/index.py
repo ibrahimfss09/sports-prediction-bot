@@ -40,7 +40,7 @@ LANGUAGE_MESSAGES = {
         'deposit_success': "🎊 *Deposit Verified Successfully!*\n\n💰 *Deposit Amount:* ${amount}\n✅ *Status:* Verified\n\n🎯 You now have access to AI-powered predictions!\n\nClick below to get your first prediction:",
         'deposit_not_found': "💰 *Deposit Not Found!*\n\nYou have registered successfully but no deposit detected yet.\n\n💵 Please make a deposit of at least $6 to get prediction access.",
         'get_prediction_btn': "🎯 GET PREDICTION",
-        'prediction_limit': "🚫 *Prediction Limit Reached*\n\nYou've used all 20 free predictions for today.\n\n💡 *Options:*\n• Wait until tomorrow for new predictions\n• Deposit 400₹ or $4 for immediate access\n\n💰 Continue predictions by depositing at least 400₹ or $4",
+        'prediction_limit': "🚫 *Prediction Limit Reached*\n\nYou've used all 20 free predictions for today.\n\n💡 *Options:*\n• Wait until tomorrow for new predictions\n• Make another deposit for additional access\n\n💰 Continue predictions by staying active!",
         'deposit_again_btn': "💳 DEPOSIT AGAIN",
         'try_tomorrow_btn': "🕐 TRY TOMORROW",
         'next_prediction_btn': "🔄 NEXT PREDICTION",
@@ -62,7 +62,7 @@ LANGUAGE_MESSAGES = {
         'after_reg': "✅ पंजीकरण के बाद, \"CHECK REGISTRATION\" बटन पर क्लिक करें",
         'register_btn': "📲 पंजीकरण करें",
         'check_btn': "🔍 पंजीकरण जांचें",
-        'enter_player_id': "🔍 *अपना पंजीकरण जांचें*\n\nकृपया सत्यापित करने के लिए अपना 1Win *Player ID* दर्ज करें:\n\n📝 *Player ID कैसे ढूंढें:*\n1. 1Win अकाउंट में लॉगिन करें\n2. प्रोफाइल सेटिंग्स पर जाएं\n3. Player ID नम्बर कॉपी करें\n4. यहाँ पेस्ट करें\n\n🔢 *अब अपना Player ID दर्ज करें:*",
+        'enter_player_id': "🔍 *अपना पंजीकरण जांचें*\n\nकृपया सत्यापित करने के लिए अपना 1Win *Player ID* दर्ज करें:\n\n📝 *Player ID कैसे ढूंढें:*\n1. 1Win अकाउंट में लॉगिन करें\n2. प्रोफाइल सेटिंग्स पर जाएं\n3. Player ID नंबर कॉपी करें\n4. यहाँ पेस्ट करें\n\n🔢 *अब अपना Player ID दर्ज करें:*",
         'loading_registration': "⏳ *कृपया कुछ सेकंड प्रतीक्षा करें, आपका पंजीकरण लोड हो रहा है...*",
         'reg_success': "🎉 *बधाई हो, आपने सफलतापूर्वक पंजीकरण पूरा कर लिया है!*\n\n✅ आपका खाता बॉट के साथ सिंक हो गया है\n\n💴 *सिग्नल तक पहुंच प्राप्त करने के लिए, अपने खाते में कम से कम 600₹ या $6 जमा करें*\n\n🕹️ अपना खाता सफलतापूर्वक रिचार्ज करने के बाद, CHECK DEPOSIT बटन पर क्लिक करें और पहुंच प्राप्त करें",
         'reg_not_found': "❌ *क्षमा करें, आप पंजीकृत नहीं हैं!*\n\nकृपया पहले REGISTER बटन पर क्लिक करें और हमारे एफिलिएट लिंक का उपयोग करके अपना पंजीकरण पूरा करें।\n\nसफल पंजीकरण के बाद, वापस आएं और अपना Player ID दर्ज करें।",
@@ -71,7 +71,7 @@ LANGUAGE_MESSAGES = {
         'deposit_success': "🎊 *जमा सफलतापूर्वक सत्यापित!*\n\n💰 *जमा राशि:* ${amount}\n✅ *स्थिति:* सत्यापित\n\n🎯 अब आपके पास AI-पावर्ड भविष्यवाणियों तक पहुंच है!\n\nअपनी पहली भविष्यवाणी प्राप्त करने के लिए नीचे क्लिक करें:",
         'deposit_not_found': "💰 *जमा नहीं मिला!*\n\nआपने सफलतापूर्वक पंजीकरण कर लिया है लेकिन अभी तक कोई जमा नहीं detected हुआ है।\n\n💵 कृपया भविष्यवाणी तक पहुंच प्राप्त करने के लिए कम से कम $6 जमा करें।",
         'get_prediction_btn': "🎯 भविष्यवाणी प्राप्त करें",
-        'prediction_limit': "🚫 *भविष्यवाणी सीमा पूर्ण*\n\nआपने आज की सभी 20 मुफ्त भविष्यवाणियों का उपयोग कर लिया है।\n\n💡 *विकल्प:*\n• नई भविष्यवाणियों के लिए कल तक प्रतीक्षा करें\n• तुरंत पहुंच के लिए 400₹ या $4 जमा करें\n\n💰 कम से कम 400₹ या $4 जमा करके भविष्यवाणियाँ जारी रखें",
+        'prediction_limit': "🚫 *भविष्यवाणी सीमा पूर्ण*\n\nआपने आज की सभी 20 मुफ्त भविष्यवाणियों का उपयोग कर लिया है।\n\n💡 *विकल्प:*\n• नई भविष्यवाणियों के लिए कल तक प्रतीक्षा करें\n• अतिरिक्त पहुंच के लिए दूसरी जमा राशि करें\n\n💰 सक्रिय रहकर भविष्यवाणियाँ जारी रखें!",
         'deposit_again_btn': "💳 फिर से जमा करें",
         'try_tomorrow_btn': "🕐 कल प्रयास करें",
         'next_prediction_btn': "🔄 अगली भविष्यवाणी",
@@ -102,7 +102,7 @@ LANGUAGE_MESSAGES = {
         'deposit_success': "🎊 *জমা সফলভাবে যাচাই করা হয়েছে!*\n\n💰 *জমার পরিমাণ:* ${amount}\n✅ *স্ট্যাটাস:* যাচাইকৃত\n\n🎯 এখন আপনার AI-চালিত ভবিষ্যদ্বাণী অ্যাক্সেস আছে!\n\nআপনার প্রথম ভবিষ্যদ্বাণী পেতে নীচে ক্লিক করুন:",
         'deposit_not_found': "💰 *জমা পাওয়া যায়নি!*\n\nআপনি সফলভাবে নিবন্ধন করেছেন কিন্তু এখনও কোন জমা সনাক্ত করা যায়নি।\n\n💵 ভবিষ্যদ্বাণী অ্যাক্সেস পেতে কমপক্ষে $6 জমা করুন।",
         'get_prediction_btn': "🎯 ভবিষ্যদ্বাণী পান",
-        'prediction_limit': "🚫 *ভবিষ্যদ্বাণী সীমা reached*\n\nআপনি আজকের 20টি বিনামূল্যের ভবিষ্যদ্বাণী ব্যবহার করেছেন।\n\n💡 *বিকল্প:*\n• নতুন ভবিষ্যদ্বাণীর জন্য আগামীকাল পর্যন্ত অপেক্ষা করুন\n• তাত্ক্ষণিক অ্যাক্সেসের জন্য 400₹ বা $4 জমা করুন\n\n💰 কমপক্ষে 400₹ বা $4 জমা করে ভবিষ্যদ্বাণী চালিয়ে যান",
+        'prediction_limit': "🚫 *ভবিষ্যদ্বাণী সীমা reached*\n\nআপনি আজকের 20টি বিনামূল্যের ভবিষ্যদ্বাণী ব্যবহার করেছেন।\n\n💡 *বিকল্প:*\n• নতুন ভবিষ্যদ্বাণীর জন্য আগামীকাল পর্যন্ত অপেক্ষা করুন\n• অতিরিক্ত অ্যাক্সেসের জন্য অন্য জমা করুন\n\n💰 সক্রিয় থাকার মাধ্যমে ভবিষ্যদ্বাণী চালিয়ে যান!",
         'deposit_again_btn': "💳 আবার জমা করুন",
         'try_tomorrow_btn': "🕐 আগামীকাল চেষ্টা করুন",
         'next_prediction_btn': "🔄 পরবর্তী ভবিষ্যদ্বাণী",
@@ -133,7 +133,7 @@ LANGUAGE_MESSAGES = {
         'deposit_success': "🎊 *جمع کامیابی سے تصدیق ہو گئی!*\n\n💰 *جمع کی رقم:* ${amount}\n✅ *حالت:* تصدیق شدہ\n\n🎯 اب آپ کے پاس AI-powered predictions تک رسائی ہے!\n\nاپنی پہلی prediction حاصل کرنے کے لیے نیچے کلک کریں:",
         'deposit_not_found': "💰 *جمع نہیں ملی!*\n\nآپ نے کامیابی کے ساتھ رجسٹریشن کر لی ہے لیکن ابھی تک کوئی جمع کا پتہ نہیں چلا ہے۔\n\n💵 prediction تک رسائی حاصل کرنے کے لیے کم از کم $6 جمع کروائیں۔",
         'get_prediction_btn': "🎯 prediction حاصل",
-        'prediction_limit': "🚫 *prediction حد reached*\n\nآپ نے آج کی 20 مفت predictions استعمال کر لی ہیں۔\n\n💡 *اختیارات:*\n• نئی predictions کے لیے کل تک انتظار کریں\n• فوری رسائی کے لیے 400₹ یا $4 جمع کروائیں\n\n💰 کم از کم 400₹ یا $4 جمع کروا کر predictions جاری رکھیں",
+        'prediction_limit': "🚫 *prediction حد reached*\n\nآپ نے آج کی 20 مفت predictions استعمال کر لی ہیں۔\n\n💡 *اختیارات:*\n• نئی predictions کے لیے کل تک انتظار کریں\n• اضافی رسائی کے لیے دوسری جمع کروائیں\n\n💰 active رہ کر predictions جاری رکھیں!",
         'deposit_again_btn': "💳 دوبارہ جمع",
         'try_tomorrow_btn': "🕐 کل کوشش",
         'next_prediction_btn': "🔄 اگلی prediction",
@@ -164,7 +164,7 @@ LANGUAGE_MESSAGES = {
         'deposit_success': "🎊 *जम्मा सफलतापूर्वक सत्यापित!*\n\n💰 *जम्मा रकम:* ${amount}\n✅ *स्थिति:* सत्यापित\n\n🎯 अब तपाईंसँग AI-powered predictions को पहुँच छ!\n\nआफ्नो पहिलो prediction प्राप्त गर्न तल क्लिक गर्नुहोस्:",
         'deposit_not_found': "💰 *जम्मा फेला परेन!*\n\nतपाईंले सफलतापूर्वक दर्ता गर्नुभएको छ तर अहिले सम्म कुनै जम्मा पत्ता लागेको छैन।\n\n💵 prediction पहुँच प्राप्त गर्न कम्तिमा $6 जम्मा गर्नुहोस्।",
         'get_prediction_btn': "🎯 prediction प्राप्त",
-        'prediction_limit': "🚫 *prediction सीमा reached*\n\nतपाईंले आजका 20 नि: शुल्क predictions प्रयोग गर्नुभयो।\n\n💡 *विकल्पहरू:*\n• नयाँ predictions को लागि भोलि सम्म पर्खनुहोस्\n• तत्काल पहुँचको लागि 400₹ वा $4 जम्मा गर्नुहोस्\n\n💰 कम्तिमा 400₹ वा $4 जम्मा गरेर predictions जारी राख्नुहोस्",
+        'prediction_limit': "🚫 *prediction सीमा reached*\n\nतपाईंले आजका 20 नि: शुल्क predictions प्रयोग गर्नुभयो।\n\n💡 *विकल्पहरू:*\n• नयाँ predictions को लागि भोलि सम्म पर्खनुहोस्\n• थप पहुँचको लागि अर्को जम्मा गर्नुहोस्\n\n💰 सक्रिय रही predictions जारी राख्नुहोस्!",
         'deposit_again_btn': "💳 फेरि जम्मा",
         'try_tomorrow_btn': "🕐 भोलि प्रयास",
         'next_prediction_btn': "🔄 अर्को prediction",
@@ -395,66 +395,62 @@ def handle_1win_postback():
         print("📨 1Win Postback Received:", data)
         
         # Extract player data with ALL possible parameter names
-        player_id = (data.get('player_id') or data.get('id') or 
-                    data.get('user_id') or data.get('sub1') or 
-                    data.get('sub2') or data.get('sub3'))
-        
+        player_id = data.get('player_id') or data.get('id')
         status = data.get('status', '')
         
         # Deposit amount - multiple possible parameter names
         deposit_amount = 0
-        amount_params = ['amount', 'fdp', 'dep_sum', 'fdp_usd', 'dep_sum_usd', 'sum']
+        amount_params = ['amount', 'fdp', 'dep_sum', 'fdp_usd', 'dep_sum_usd']
         for param in amount_params:
             if data.get(param):
                 try:
                     deposit_amount = float(data.get(param))
-                    print(f"💰 Found deposit amount in {param}: ${deposit_amount}")
                     break
                 except (ValueError, TypeError):
                     continue
         
-        print(f"🔍 Final Extraction - Player: {player_id}, Status: {status}, Amount: ${deposit_amount}")
+        print(f"🔍 Extracted - Player: {player_id}, Status: {status}, Amount: {deposit_amount}")
         
-        if not player_id:
-            print("❌ No player_id found in postback data")
-            return jsonify({"status": "error", "message": "No player ID provided"})
+        if player_id:
+            # Always mark as registered when postback received
+            player_registrations[player_id] = True
+            
+            # Handle different statuses
+            if status in ['fd_approved', 'active', 'fdp'] and deposit_amount > 0:
+                player_deposits[player_id] = deposit_amount
+                
+                # Update all users with this player_id
+                for user_id, user_data in users_storage.items():
+                    if user_data.get('player_id') == player_id:
+                        user_data['deposit_amount'] = deposit_amount
+                        user_data['is_registered'] = True
+                        save_user(user_data)
+                        print(f"✅ Updated user {user_id} with deposit ${deposit_amount}")
+                
+                send_admin_notification(f"💰 DEPOSIT: Player {player_id} - ${deposit_amount} (Status: {status})")
+                return jsonify({
+                    "status": "success", 
+                    "player_id": player_id, 
+                    "deposit": deposit_amount,
+                    "postback_status": status,
+                    "message": "Deposit recorded successfully"
+                })
+            elif status in ['registration', 'active']:
+                # Registration without deposit
+                player_deposits[player_id] = 0
+                send_admin_notification(f"📝 REGISTRATION: Player {player_id} (Status: {status})")
+                return jsonify({
+                    "status": "success", 
+                    "player_id": player_id, 
+                    "deposit": 0,
+                    "postback_status": status,
+                    "message": "Registration recorded successfully"
+                })
         
-        # Always mark as registered when ANY postback received
-        player_registrations[player_id] = True
-        print(f"✅ Player {player_id} marked as registered")
-        
-        # Handle different statuses
-        if deposit_amount > 0:
-            player_deposits[player_id] = deposit_amount
-            print(f"💰 Player {player_id} deposit recorded: ${deposit_amount}")
-        
-        # Update all users with this player_id
-        users_updated = 0
-        for user_id, user_data in users_storage.items():
-            if user_data.get('player_id') == player_id:
-                user_data['deposit_amount'] = deposit_amount
-                user_data['is_registered'] = True
-                save_user(user_data)
-                users_updated += 1
-                print(f"✅ Updated user {user_id} with player {player_id}")
-        
-        # Send admin notification
-        if deposit_amount > 0:
-            send_admin_notification(f"💰 DEPOSIT: Player {player_id} - ${deposit_amount} (Status: {status}) | Users Updated: {users_updated}")
-        else:
-            send_admin_notification(f"📝 REGISTRATION: Player {player_id} (Status: {status}) | Users Updated: {users_updated}")
-        
-        return jsonify({
-            "status": "success", 
-            "player_id": player_id, 
-            "deposit": deposit_amount,
-            "postback_status": status,
-            "users_updated": users_updated,
-            "message": "Postback processed successfully"
-        })
+        return jsonify({"status": "error", "message": "Invalid player data"})
     
     except Exception as e:
-        print(f"❌ Postback error: {e}")
+        print(f"Postback error: {e}")
         return jsonify({"status": "error", "message": str(e)})
 
 # ==================== MANUAL TESTING ENDPOINTS ====================
@@ -651,10 +647,8 @@ def webhook():
             
             elif data_value == 'get_prediction':
                 if not can_get_prediction(user_id):
-                    # 🎯 UPDATED: PREDICTION LIMIT REACHED - SHOW BOTH BUTTONS
                     keyboard = {
                         'inline_keyboard': [
-                            [{'text': msg_data['deposit_again_btn'], 'url': 'https://mostbet-king.com/5rTs'}],
                             [{'text': msg_data['try_tomorrow_btn'], 'callback_data': 'try_tomorrow'}]
                         ]
                     }
