@@ -8,13 +8,13 @@ import json
 
 app = Flask(__name__)
 
-# Environment variables - Vercel me ye add karna hoga
+# Environment variables
 BOT_TOKEN = os.environ.get('BOT_TOKEN')
 CRICAPI_KEY = os.environ.get('CRICAPI_KEY')
-VERCEL_URL = os.environ.get('VERCEL_URL')
+VERCEL_URL = os.environ.get('VERCEL_URL', 'sports-prediction-bot.vercel.app')
 ADMIN_CHAT_ID = os.environ.get('ADMIN_CHAT_ID')
 
-# Database simulation (Vercel me Redis add kar sakte hain baad me)
+# Database simulation
 users_storage = {}
 player_registrations = {}
 player_deposits = {}
@@ -376,19 +376,6 @@ def edit_telegram_message(chat_id, message_id, text, reply_markup=None):
         print(f"Edit message error: {e}")
         return None
 
-def delete_telegram_message(chat_id, message_id):
-    try:
-        url = f"https://api.telegram.org/bot{BOT_TOKEN}/deleteMessage"
-        payload = {
-            'chat_id': chat_id,
-            'message_id': message_id
-        }
-        response = requests.post(url, json=payload, timeout=5)
-        return response.json()
-    except Exception as e:
-        print(f"Delete message error: {e}")
-        return None
-
 def send_admin_notification(message):
     try:
         if ADMIN_CHAT_ID:
@@ -407,16 +394,29 @@ def handle_1win_postback():
         
         print("📨 1Win Postback Received:", data)
         
-        # Extract player data
-        player_id = data.get('id') or data.get('player_id') or data.get('user_id')
+        # Extract player data with ALL possible parameter names
+        player_id = data.get('player_id') or data.get('id')
         status = data.get('status', '')
-        deposit_amount = float(data.get('fdp', 0) or data.get('dep_sum', 0) or data.get('amount', 0))
+        
+        # Deposit amount - multiple possible parameter names
+        deposit_amount = 0
+        amount_params = ['amount', 'fdp', 'dep_sum', 'fdp_usd', 'dep_sum_usd']
+        for param in amount_params:
+            if data.get(param):
+                try:
+                    deposit_amount = float(data.get(param))
+                    break
+                except (ValueError, TypeError):
+                    continue
+        
+        print(f"🔍 Extracted - Player: {player_id}, Status: {status}, Amount: {deposit_amount}")
         
         if player_id:
             # Always mark as registered when postback received
             player_registrations[player_id] = True
             
-            if deposit_amount > 0:
+            # Handle different statuses
+            if status in ['fd_approved', 'active', 'fdp'] and deposit_amount > 0:
                 player_deposits[player_id] = deposit_amount
                 
                 # Update all users with this player_id
@@ -425,21 +425,25 @@ def handle_1win_postback():
                         user_data['deposit_amount'] = deposit_amount
                         user_data['is_registered'] = True
                         save_user(user_data)
+                        print(f"✅ Updated user {user_id} with deposit ${deposit_amount}")
                 
-                send_admin_notification(f"💰 DEPOSIT: Player {player_id} - ${deposit_amount}")
+                send_admin_notification(f"💰 DEPOSIT: Player {player_id} - ${deposit_amount} (Status: {status})")
                 return jsonify({
                     "status": "success", 
                     "player_id": player_id, 
                     "deposit": deposit_amount,
+                    "postback_status": status,
                     "message": "Deposit recorded successfully"
                 })
-            else:
+            elif status in ['registration', 'active']:
                 # Registration without deposit
-                send_admin_notification(f"📝 REGISTRATION: Player {player_id}")
+                player_deposits[player_id] = 0
+                send_admin_notification(f"📝 REGISTRATION: Player {player_id} (Status: {status})")
                 return jsonify({
                     "status": "success", 
                     "player_id": player_id, 
                     "deposit": 0,
+                    "postback_status": status,
                     "message": "Registration recorded successfully"
                 })
         
@@ -686,6 +690,10 @@ def home():
     <p>✅ Bot is running successfully!</p>
     <p>📊 Stats: <a href="/admin/stats">View Statistics</a></p>
     <p>🔧 Testing: <a href="/test-register/12345">Test Registration</a></p>
+    <h3>🎯 1Win Postback URLs:</h3>
+    <p>On Registration: https://sports-prediction-bot.vercel.app/1win-postback?player_id={id}&status=registration&amount=0</p>
+    <p>On First Deposit: https://sports-prediction-bot.vercel.app/1win-postback?player_id={id}&status=fdp&amount={fdp}</p>
+    <p>On Deposit Approval: https://sports-prediction-bot.vercel.app/1win-postback?player_id={id}&status=fd_approved&amount={fdp}</p>
     """
 
 @app.route('/set_webhook', methods=['GET'])
